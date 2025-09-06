@@ -1,4 +1,5 @@
 "use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -26,15 +27,13 @@ export default function Signup() {
   const router = useRouter();
   const { setUser } = useAuth();
 
-  const validateEmail = (email: string) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  };
+  const validateEmail = (email: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const validateMobile = (mobile: string) => /^[0-9]{10}$/.test(mobile);
 
-  const validateMobile = (mobile: string) => {
-    return /^[0-9]{10}$/.test(mobile);
-  };
+  const handleSignup = async (e?: React.FormEvent<HTMLFormElement>) => {
+    e?.preventDefault();
 
-  const handleSignup = async () => {
     if (!validateEmail(email)) {
       alert("Please enter a valid email (example@domain.com)");
       return;
@@ -43,21 +42,27 @@ export default function Signup() {
       alert("Mobile number must be exactly 10 digits");
       return;
     }
+    if (password.length < 6) {
+      alert("Password must be at least 6 characters long");
+      return;
+    }
 
     try {
       await account.create(ID.unique(), email, password, name);
       await account.createEmailPasswordSession(email, password);
-      await account.updatePrefs({
-        mobile,
-        age,
-      });
+      await account.updatePrefs({ mobile, age });
 
       const user = await account.get();
       setUser(user);
       router.push("/dashboard");
-    } catch (err) {
-      console.error("Signup error:", err);
-      alert("Signup failed. Please try again.");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error("Signup error:", err.message);
+        alert(err.message || "Signup failed. Please try again.");
+      } else {
+        console.error("Signup error:", err);
+        alert("Signup failed. Please try again.");
+      }
     }
   };
 
@@ -77,7 +82,7 @@ export default function Signup() {
         </CardAction>
       </CardHeader>
       <CardContent>
-        <form onSubmit={(e) => e.preventDefault()}>
+        <form onSubmit={handleSignup}>
           <div className="flex flex-col gap-6">
             <div className="grid gap-2">
               <Label htmlFor="name">Your Name</Label>
@@ -130,13 +135,13 @@ export default function Signup() {
               />
             </div>
           </div>
+          <CardFooter className="flex-col gap-2 mt-6">
+            <Button type="submit" className="w-full">
+              Sign up
+            </Button>
+          </CardFooter>
         </form>
       </CardContent>
-      <CardFooter className="flex-col gap-2">
-        <Button onClick={handleSignup} type="submit" className="w-full">
-          Sign up
-        </Button>
-      </CardFooter>
     </Card>
   );
 }
