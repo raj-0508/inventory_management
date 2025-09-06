@@ -1,4 +1,5 @@
 "use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -23,16 +24,24 @@ export default function Login() {
   const router = useRouter();
   const { setUser } = useAuth();
 
-  const handleLogin = async () => {
+  const handleLogin = async (e?: React.FormEvent<HTMLFormElement>) => {
+    e?.preventDefault();
     try {
       await account.createEmailPasswordSession(email, password);
       const user = await account.get();
       setUser(user);
       router.push("/dashboard");
-    } catch (err) {
-      console.error(err);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error("Login error:", err.message);
+        alert(err.message || "Login failed. Please try again.");
+      } else {
+        console.error("Login error:", err);
+        alert("Login failed. Please try again.");
+      }
     }
   };
+
   return (
     <Card className="w-full max-w-sm mx-auto mt-24">
       <CardHeader>
@@ -49,7 +58,7 @@ export default function Login() {
         </CardAction>
       </CardHeader>
       <CardContent>
-        <form>
+        <form onSubmit={handleLogin}>
           <div className="flex flex-col gap-6">
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
@@ -63,9 +72,7 @@ export default function Login() {
               />
             </div>
             <div className="grid gap-2">
-              <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
-              </div>
+              <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
                 type="password"
@@ -76,16 +83,13 @@ export default function Login() {
               />
             </div>
           </div>
+          <CardFooter className="flex-col gap-2 mt-6">
+            <Button type="submit" className="w-full">
+              Login
+            </Button>
+          </CardFooter>
         </form>
       </CardContent>
-      <CardFooter className="flex-col gap-2">
-        <Button onClick={handleLogin} type="submit" className="w-full">
-          Login
-        </Button>
-        {/* <Button variant="outline" className="w-full">
-          Login with Google
-        </Button> */}
-      </CardFooter>
     </Card>
   );
 }
