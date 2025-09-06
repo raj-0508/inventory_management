@@ -167,7 +167,7 @@ export default function Home() {
                 key={idx}
                 className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg hover:shadow-2xl transition transform hover:scale-105 duration-500 text-gray-800 dark:text-gray-100"
               >
-                <p className="italic text-sm sm:text-base">"{item.quote}"</p>
+                <p className="italic text-sm sm:text-base">{`"${item.quote}"`}</p>
                 <h4 className="mt-4 font-semibold text-sm sm:text-base">
                   {item.name}
                 </h4>
