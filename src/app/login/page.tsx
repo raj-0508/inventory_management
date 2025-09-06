@@ -14,15 +14,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { account } from "@/lib/appwrite";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/AuthContext";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const { setUser, user, loading } = useAuth();
+  const { user, loading, login } = useAuth();
 
   // Redirect if already logged in
   useEffect(() => {
@@ -33,12 +33,11 @@ export default function Login() {
 
   const handleLogin = async (e?: React.FormEvent<HTMLFormElement>) => {
     e?.preventDefault();
+    setIsLoading(true);
+    
     try {
-      await account.createEmailPasswordSession(email, password);
-      const user = await account.get();
-      setUser(user);
-      
-      // Use window.location for more reliable redirect in production
+      await login(email, password);
+      // Redirect after successful login
       window.location.href = "/dashboard";
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -48,6 +47,8 @@ export default function Login() {
         console.error("Login error:", err);
         alert("Login failed. Please try again.");
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -93,8 +94,8 @@ export default function Login() {
             </div>
           </div>
           <CardFooter className="flex-col gap-2 mt-6">
-            <Button type="submit" className="w-full">
-              Login
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Logging in..." : "Login"}
             </Button>
           </CardFooter>
         </form>
