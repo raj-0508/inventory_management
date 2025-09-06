@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/AuthContext";
 
@@ -27,12 +27,8 @@ export default function Signup() {
   const router = useRouter();
   const { user, loading, signup } = useAuth();
 
-  // Redirect if already logged in
-  useEffect(() => {
-    if (!loading && user) {
-      window.location.href = "/dashboard";
-    }
-  }, [user, loading]);
+  // Don't redirect automatically - let user stay on signup page
+  // The middleware will handle redirects
 
   const validateEmail = (email: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -97,6 +93,7 @@ export default function Signup() {
                 id="name"
                 type="text"
                 required
+                autoComplete="name"
                 placeholder="Enter Your Name"
                 onChange={(e) => setName(e.target.value)}
               />
@@ -107,6 +104,7 @@ export default function Signup() {
                 id="email"
                 type="email"
                 required
+                autoComplete="email"
                 placeholder="abc@example.com"
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -117,6 +115,7 @@ export default function Signup() {
                 id="password"
                 type="password"
                 required
+                autoComplete="new-password"
                 placeholder="Enter Password"
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -127,6 +126,7 @@ export default function Signup() {
                 id="mobile"
                 type="tel"
                 required
+                autoComplete="tel"
                 placeholder="Enter 10-digit Mobile Number"
                 onChange={(e) => setMobile(e.target.value)}
               />
