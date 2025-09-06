@@ -47,7 +47,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const login = async (email: string, password: string) => {
     try {
       console.log('Attempting login...');
-      await account.createEmailPasswordSession(email, password);
+      // Use the correct Appwrite v19 syntax for session creation
+      await account.createEmailPasswordSession({
+        email: email,
+        password: password
+      });
       const userData = await account.get();
       setUser(userData);
       console.log('Login successful:', userData);
@@ -60,9 +64,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signup = async (email: string, password: string, name: string, mobile: string, age: string) => {
     try {
       console.log('Attempting signup...');
-      await account.create(ID.unique(), email, password, name);
-      await account.createEmailPasswordSession(email, password);
+      // Use the correct Appwrite v19 syntax for account creation
+      await account.create({
+        userId: ID.unique(),
+        email: email,
+        password: password,
+        name: name
+      });
+      
+      // Create session after account creation
+      await account.createEmailPasswordSession({
+        email: email,
+        password: password
+      });
+      
+      // Update user preferences
       await account.updatePrefs({ mobile, age });
+      
       const userData = await account.get();
       setUser(userData);
       console.log('Signup successful:', userData);
