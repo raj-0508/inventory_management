@@ -2,8 +2,12 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
-  const hasSession = request.cookies.has("a_session");
   const pathname = request.nextUrl.pathname;
+
+  // ✅ Match Appwrite session cookie
+  const hasSession = request.cookies
+    .getAll()
+    .some(cookie => cookie.name.startsWith("a_session"));
 
   const isAuthPage =
     pathname.startsWith("/login") || pathname.startsWith("/signup");
@@ -20,5 +24,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard", "/login", "/signup"],
+  matcher: ["/dashboard/:path*", "/login", "/signup"],
 };
