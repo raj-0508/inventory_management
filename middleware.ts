@@ -4,20 +4,28 @@ import type { NextRequest } from "next/server";
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
-  // ✅ Match Appwrite session cookie
+  // Check for Appwrite session cookies with multiple patterns
   const hasSession = request.cookies
     .getAll()
-    .some(cookie => cookie.name.startsWith("a_session"));
+    .some(cookie => 
+      cookie.name.startsWith("a_session") || 
+      cookie.name.startsWith("appwrite-session") ||
+      cookie.name.includes("session")
+    );
 
   const isAuthPage =
     pathname.startsWith("/login") || pathname.startsWith("/signup");
 
+  // Only redirect to login if accessing dashboard without session
   if (!hasSession && pathname.startsWith("/dashboard")) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
+  // Don't redirect from auth pages if session exists - let AuthContext handle it
+  // This prevents the race condition between middleware and AuthContext
   if (hasSession && isAuthPage) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    // Let the client-side AuthContext handle the redirect
+    return NextResponse.next();
   }
 
   return NextResponse.next();
