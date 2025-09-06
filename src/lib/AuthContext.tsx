@@ -26,18 +26,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        console.log('Checking authentication...');
         const userData = await account.get();
+        console.log('User data:', userData);
         setUser(userData);
         
         // Redirect to dashboard if user is authenticated and on auth pages
         if (userData && (pathname === '/login' || pathname === '/signup')) {
+          console.log('Redirecting to dashboard...');
           router.push('/dashboard');
         }
       } catch (error) {
+        console.error('Authentication error:', error);
         setUser(null);
         
         // Redirect to login if user is not authenticated and on protected pages
         if (pathname.startsWith('/dashboard')) {
+          console.log('Redirecting to login...');
           router.push('/login');
         }
       } finally {
