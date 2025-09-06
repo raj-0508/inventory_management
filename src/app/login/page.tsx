@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/AuthContext";
 
@@ -24,12 +24,8 @@ export default function Login() {
   const router = useRouter();
   const { user, loading, login } = useAuth();
 
-  // Redirect if already logged in
-  useEffect(() => {
-    if (!loading && user) {
-      window.location.href = "/dashboard";
-    }
-  }, [user, loading]);
+  // Don't redirect automatically - let user stay on login page
+  // The middleware will handle redirects
 
   const handleLogin = async (e?: React.FormEvent<HTMLFormElement>) => {
     e?.preventDefault();
@@ -77,6 +73,7 @@ export default function Login() {
                 type="email"
                 placeholder="abc@example.com"
                 required
+                autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -87,6 +84,7 @@ export default function Login() {
                 id="password"
                 type="password"
                 required
+                autoComplete="current-password"
                 placeholder="Enter Your Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
