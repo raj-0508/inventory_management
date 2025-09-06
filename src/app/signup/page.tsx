@@ -54,7 +54,9 @@ export default function Signup() {
 
       const user = await account.get();
       setUser(user);
-      router.push("/dashboard");
+      
+      // Use window.location for more reliable redirect in production
+      window.location.href = "/dashboard";
     } catch (err: unknown) {
       if (err instanceof Error) {
         console.error("Signup error:", err.message);
