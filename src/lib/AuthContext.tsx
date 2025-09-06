@@ -34,7 +34,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // Redirect to dashboard if user is authenticated and on auth pages
         if (userData && (pathname === '/login' || pathname === '/signup')) {
           console.log('Redirecting to dashboard...');
-          router.push('/dashboard');
+          // Small delay to ensure state is updated, then redirect
+          setTimeout(() => {
+            window.location.href = '/dashboard';
+          }, 100);
         }
       } catch (error) {
         console.error('Authentication error:', error);
