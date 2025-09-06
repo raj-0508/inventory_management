@@ -10,7 +10,8 @@ export function middleware(request: NextRequest) {
     .some(cookie => 
       cookie.name.startsWith("a_session") || 
       cookie.name.startsWith("appwrite-session") ||
-      cookie.name.includes("session")
+      cookie.name.includes("session") ||
+      cookie.name.includes("auth")
     );
 
   const isAuthPage =
@@ -21,13 +22,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // Don't redirect from auth pages if session exists - let AuthContext handle it
-  // This prevents the race condition between middleware and AuthContext
-  if (hasSession && isAuthPage) {
-    // Let the client-side AuthContext handle the redirect
-    return NextResponse.next();
-  }
-
+  // Let AuthContext handle all redirects for better reliability
   return NextResponse.next();
 }
 
