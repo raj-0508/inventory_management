@@ -14,7 +14,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { account, ID } from "@/lib/appwrite";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/AuthContext";
 
@@ -24,8 +23,9 @@ export default function Signup() {
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
   const [age, setAge] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const { setUser, user, loading } = useAuth();
+  const { user, loading, signup } = useAuth();
 
   // Redirect if already logged in
   useEffect(() => {
@@ -54,15 +54,11 @@ export default function Signup() {
       return;
     }
 
-    try {
-      await account.create(ID.unique(), email, password, name);
-      await account.createEmailPasswordSession(email, password);
-      await account.updatePrefs({ mobile, age });
+    setIsLoading(true);
 
-      const user = await account.get();
-      setUser(user);
-      
-      // Use window.location for more reliable redirect in production
+    try {
+      await signup(email, password, name, mobile, age);
+      // Redirect after successful signup
       window.location.href = "/dashboard";
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -72,6 +68,8 @@ export default function Signup() {
         console.error("Signup error:", err);
         alert("Signup failed. Please try again.");
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -145,8 +143,8 @@ export default function Signup() {
             </div>
           </div>
           <CardFooter className="flex-col gap-2 mt-6">
-            <Button type="submit" className="w-full">
-              Sign up
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Creating account..." : "Sign up"}
             </Button>
           </CardFooter>
         </form>
