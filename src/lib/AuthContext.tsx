@@ -1,8 +1,8 @@
 
 'use client';
 import { createContext, useContext, useEffect, useState } from 'react';
-import { account } from '@/lib/appwrite';
-import { Models } from 'appwrite';
+import { account, ID } from '@/lib/appwrite';
+import type { Models } from 'appwrite';
 
 type AuthContextType = {
   user: Models.User<Models.Preferences> | null;
@@ -60,7 +60,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signup = async (email: string, password: string, name: string, mobile: string, age: string) => {
     try {
       console.log('Attempting signup...');
-      await account.create(Models.ID.unique(), email, password, name);
+      await account.create(ID.unique(), email, password, name);
       await account.createEmailPasswordSession(email, password);
       await account.updatePrefs({ mobile, age });
       const userData = await account.get();
