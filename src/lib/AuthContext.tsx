@@ -33,9 +33,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const userData = await account.get();
         console.log('User authenticated:', userData);
         setUser(userData);
+        
+        // If user is authenticated and on auth pages, redirect to dashboard
+        const currentPath = window.location.pathname;
+        if (userData && (currentPath === '/login' || currentPath === '/signup')) {
+          console.log('User authenticated, redirecting to dashboard...');
+          window.location.href = '/dashboard';
+        }
       } catch (error) {
         console.log('No user session found');
         setUser(null);
+        
+        // If no user and on dashboard, redirect to login
+        const currentPath = window.location.pathname;
+        if (currentPath.startsWith('/dashboard')) {
+          console.log('No user session, redirecting to login...');
+          window.location.href = '/login';
+        }
       } finally {
         setLoading(false);
       }
