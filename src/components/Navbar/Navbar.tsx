@@ -64,7 +64,30 @@ const Navbar = () => {
         </Link>
 
         {/* Desktop Menu */}
-        <div className="hidden md:flex items-center gap-4">
+        <nav className="hidden md:flex items-center gap-6">
+          <Link href="/#home" className="text-sm hover:text-primary transition-colors">
+            Home
+          </Link>
+          <Link href="/#about" className="text-sm hover:text-primary transition-colors">
+            About
+          </Link>
+          <Link href="/#contact" className="text-sm hover:text-primary transition-colors">
+            Contact
+          </Link>
+          <button
+            onClick={() => {
+              if (user) {
+                router.push("/dashboard");
+              } else {
+                router.push("/login");
+              }
+            }}
+            className="text-sm hover:text-primary transition-colors cursor-pointer"
+          >
+            Dashboard
+          </button>
+        </nav>
+        <div className="hidden md:flex items-center gap-4 cursor-pointer">
           {user ? (
             <Button
               onClick={handleLogout}
@@ -132,6 +155,28 @@ const Navbar = () => {
 
         {/* Menu items */}
         <div className="flex flex-col items-start gap-6 p-6">
+          <Link href="/#home" onClick={() => setMenuOpen(false)} className="text-sm hover:text-primary transition-colors">
+            Home
+          </Link>
+          <Link href="/#about" onClick={() => setMenuOpen(false)} className="text-sm hover:text-primary transition-colors">
+            About
+          </Link>
+          <Link href="/#contact" onClick={() => setMenuOpen(false)} className="text-sm hover:text-primary transition-colors">
+            Contact
+          </Link>
+          <button
+            onClick={() => {
+              setMenuOpen(false);
+              if (user) {
+                router.push("/dashboard");
+              } else {
+                router.push("/login");
+              }
+            }}
+            className="text-sm hover:text-primary transition-colors"
+          >
+            Dashboard
+          </button>
           {user ? (
             <Button
               onClick={() => {
