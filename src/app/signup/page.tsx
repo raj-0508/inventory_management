@@ -14,7 +14,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/AuthContext";
 
 export default function Signup() {
@@ -24,8 +23,7 @@ export default function Signup() {
   const [mobile, setMobile] = useState("");
   const [age, setAge] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
-  const { user, loading, signup } = useAuth();
+  const { signup } = useAuth();
 
   // Don't redirect automatically - let user stay on signup page
   // The middleware will handle redirects
