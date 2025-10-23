@@ -6,23 +6,23 @@ export default function HowItWorksSection() {
   const steps = [
     {
       step: "1",
-      title: "Find products fast",
-      desc: "Search by name or SKU and filter by category or stock level to locate items instantly.",
+      title: "Sign Up & Login",
+      desc: "Create your account with secure authentication powered by Appwrite. Your data is isolated and protected.",
     },
     {
       step: "2",
-      title: "Add new stock",
-      desc: "Create products with name, SKU, price, and starting quantity—optimized for speed.",
+      title: "Add Your Products",
+      desc: "Create inventory items with name, SKU, quantity, and price. Start building your product catalog instantly.",
     },
     {
       step: "3",
-      title: "Adjust in real time",
-      desc: "Increase or decrease quantities during restocks and audits. Every change is immediate.",
+      title: "Track & Manage",
+      desc: "Search products by name or SKU, sort by any field, and update quantities in real-time. Get instant low-stock alerts.",
     },
     {
       step: "4",
-      title: "Keep your catalog clean",
-      desc: "Remove discontinued items and avoid duplicates so your inventory stays accurate.",
+      title: "Sell & Invoice",
+      desc: "Process sales with customer details, generate professional invoices, and automatically update inventory levels.",
     },
   ];
 
