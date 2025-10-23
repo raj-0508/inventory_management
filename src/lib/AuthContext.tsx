@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           console.log('User authenticated, redirecting to dashboard...');
           window.location.href = '/dashboard';
         }
-      } catch (error) {
+      } catch {
         console.log('No user session found');
         setUser(null);
         
