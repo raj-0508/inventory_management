@@ -56,7 +56,6 @@ export default function DashboardPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<{ show: boolean; product: Product | null }>({ show: false, product: null });
-  const [showInvoice, setShowInvoice] = useState(false);
   const [showLowStockAlert, setShowLowStockAlert] = useState(false);
   const [lowStockProducts, setLowStockProducts] = useState<Product[]>([]);
   const [showSellModal, setShowSellModal] = useState(false);
@@ -67,15 +66,7 @@ export default function DashboardPage() {
 
   // Per-user storage helpers
   const storageKey = user?.$id ? `products:${user.$id}` : null;
-  const loadProducts = () => {
-    try {
-      if (!storageKey || typeof window === "undefined") return [] as Product[];
-      const raw = localStorage.getItem(storageKey);
-      return raw ? (JSON.parse(raw) as Product[]) : [];
-    } catch {
-      return [] as Product[];
-    }
-  };
+  
   const saveProducts = (next: Product[]) => {
     try {
       if (!storageKey || typeof window === "undefined") return;
@@ -86,10 +77,19 @@ export default function DashboardPage() {
   // Load user products on auth ready
   useEffect(() => {
     if (!loading && user) {
+      const loadProducts = () => {
+        try {
+          if (!storageKey || typeof window === "undefined") return [] as Product[];
+          const raw = localStorage.getItem(storageKey);
+          return raw ? (JSON.parse(raw) as Product[]) : [];
+        } catch {
+          return [] as Product[];
+        }
+      };
       const data = loadProducts();
       setProducts(data);
     }
-  }, [loading, user]);
+  }, [loading, user, storageKey]);
 
   // Check for low stock products and show notification
   useEffect(() => {
@@ -285,7 +285,7 @@ export default function DashboardPage() {
                 className="pl-9"
               />
             </div>
-            <Button onClick={generateInvoice} variant="outline" className="border-green-500 text-green-600 hover:bg-green-50">
+            <Button onClick={() => generateInvoice()} variant="outline" className="border-green-500 text-green-600 hover:bg-green-50">
               <FileText className="mr-2 h-4 w-4" /> Generate Invoice
             </Button>
             <Button onClick={handleAdd} className="bg-gradient-to-b from-blue-500 to-blue-700 text-white">
@@ -432,7 +432,7 @@ export default function DashboardPage() {
             <Card className="w-full max-w-md border-border/60 p-6">
               <h3 className="mb-4 text-lg font-semibold text-destructive">Delete Product</h3>
               <p className="mb-6 text-muted-foreground">
-                Are you sure you want to delete <strong>"{deleteConfirm.product?.name}"</strong>? This action cannot be undone.
+                Are you sure you want to delete <strong>&quot;{deleteConfirm.product?.name}&quot;</strong>? This action cannot be undone.
               </p>
               <div className="flex justify-end gap-3">
                 <Button 
