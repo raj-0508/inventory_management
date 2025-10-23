@@ -14,15 +14,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/AuthContext";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
-  const { user, loading, login } = useAuth();
+  const { login } = useAuth();
 
   // Don't redirect automatically - let user stay on login page
   // The middleware will handle redirects
