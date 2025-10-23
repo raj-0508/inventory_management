@@ -11,7 +11,7 @@ type BorderBeamProps = {
 };
 
 // Simple animated border glow using gradients
-export function BorderBeam({ duration = 8, size = 300, className, reverse }: BorderBeamProps) {
+export function BorderBeam({ duration = 8, className, reverse }: BorderBeamProps) {
   return (
     <span
       aria-hidden
