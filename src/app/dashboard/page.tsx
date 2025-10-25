@@ -5,7 +5,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Plus, Search, Edit3, Trash2, Package, Layers3, ArrowDownUp, FileText, Bell, AlertTriangle, ShoppingCart } from "lucide-react";
+import { Plus, Search, Edit3, Trash2, Package, Layers3, ArrowDownUp,  Bell, AlertTriangle, ShoppingCart } from "lucide-react";
 
 type Product = {
   id: string;
@@ -285,9 +285,9 @@ export default function DashboardPage() {
                 className="pl-9"
               />
             </div>
-            <Button onClick={() => generateInvoice()} variant="outline" className="border-green-500 text-green-600 hover:bg-green-50">
+            {/* <Button onClick={() => generateInvoice()} variant="outline" className="border-green-500 text-green-600 hover:bg-green-50">
               <FileText className="mr-2 h-4 w-4" /> Generate Invoice
-            </Button>
+            </Button> */}
             <Button onClick={handleAdd} className="bg-gradient-to-b from-blue-500 to-blue-700 text-white">
               <Plus className="mr-2 h-4 w-4" /> Add Product
             </Button>
