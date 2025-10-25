@@ -5,7 +5,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Plus, Search, Edit3, Trash2, Package, Layers3, ArrowDownUp,  Bell, AlertTriangle, ShoppingCart } from "lucide-react";
+import { Plus, Search, Edit3, Trash2, Package, Layers3, ArrowDownUp, Bell, AlertTriangle, ShoppingCart } from "lucide-react";
 
 type Product = {
   id: string;
@@ -23,8 +23,6 @@ export default function DashboardPage() {
       window.location.href = "/login";
     }
   }, [user, loading]);
-
-  // Use authenticated user's name directly
 
   const [products, setProducts] = useState<Product[]>([]);
   const [query, setQuery] = useState("");
@@ -61,7 +59,6 @@ export default function DashboardPage() {
   const [showSellModal, setShowSellModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [sellQuantity, setSellQuantity] = useState(1);
-  const [customerName, setCustomerName] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
 
   // Per-user storage helpers
@@ -117,7 +114,6 @@ export default function DashboardPage() {
   const handleSell = (product: Product) => {
     setSelectedProduct(product);
     setSellQuantity(1);
-    setCustomerName("");
     setCustomerEmail("");
     setShowSellModal(true);
   };
@@ -230,13 +226,12 @@ export default function DashboardPage() {
     });
 
     // Generate invoice for the sale
-    generateInvoice(selectedProduct, sellQuantity, { name: customerName, email: customerEmail });
+    generateInvoice(selectedProduct, sellQuantity, { name: "Customer", email: customerEmail });
 
     // Close modal
     setShowSellModal(false);
     setSelectedProduct(null);
     setSellQuantity(1);
-    setCustomerName("");
     setCustomerEmail("");
   };
   const handleSubmit = (e: React.FormEvent) => {
@@ -285,9 +280,6 @@ export default function DashboardPage() {
                 className="pl-9"
               />
             </div>
-            {/* <Button onClick={() => generateInvoice()} variant="outline" className="border-green-500 text-green-600 hover:bg-green-50">
-              <FileText className="mr-2 h-4 w-4" /> Generate Invoice
-            </Button> */}
             <Button onClick={handleAdd} className="bg-gradient-to-b from-blue-500 to-blue-700 text-white">
               <Plus className="mr-2 h-4 w-4" /> Add Product
             </Button>
@@ -483,10 +475,7 @@ export default function DashboardPage() {
                   Dismiss
                 </Button>
                 <Button 
-                  onClick={() => {
-                    setShowLowStockAlert(false);
-                    // You can add logic here to automatically reorder or contact suppliers
-                  }}
+                  onClick={() => setShowLowStockAlert(false)}
                   className="bg-orange-600 dark:bg-orange-700 text-white hover:bg-orange-700 dark:hover:bg-orange-600"
                 >
                   <Bell className="mr-2 h-4 w-4" />
@@ -519,15 +508,6 @@ export default function DashboardPage() {
                     value={sellQuantity}
                     onChange={(e) => setSellQuantity(Number(e.target.value))}
                     placeholder="Enter quantity"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Customer Name (Optional)</label>
-                  <Input
-                    value={customerName}
-                    onChange={(e) => setCustomerName(e.target.value)}
-                    placeholder="Enter customer name"
                   />
                 </div>
 
