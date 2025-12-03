@@ -25,15 +25,12 @@ export const getProducts = async (userId: string): Promise<Product[]> => {
 
 export const addProduct = async (product: Omit<Product, "id">, userId: string): Promise<Product | null> => {
     try {
-        // Remove id if present to avoid schema errors
-        const { id, ...data } = product as any;
-
         const response = await databases.createDocument(
             databaseId,
             collectionId,
             ID.unique(),
             {
-                ...data,
+                ...product,
                 userId,
             }
         );
@@ -54,7 +51,8 @@ export const addProduct = async (product: Omit<Product, "id">, userId: string): 
 export const updateProduct = async (id: string, product: Partial<Product>): Promise<Product | null> => {
     try {
         // Remove id from the update payload if present
-        const { id: _, ...data } = product as any;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { id: _id, ...data } = product;
 
         const response = await databases.updateDocument(
             databaseId,
