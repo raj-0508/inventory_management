@@ -2,11 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/lib/AuthContext";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Plus, Search, Edit3, Trash2, Package, Layers3, ArrowDownUp, Bell, AlertTriangle, ShoppingCart, X, ShoppingBag, FileText } from "lucide-react";
+import { Package, Layers3, ArrowDownUp, ShoppingBag } from "lucide-react";
 import { Product, CartItem } from "./components/types";
+import { getProducts, addProduct, updateProduct, deleteProduct } from "@/lib/db";
 import { HeaderBar } from "./components/HeaderBar";
 import { SummaryGrid, SummaryCard } from "./components/Summary";
 import { ProductsTable } from "./components/ProductsTable";
@@ -35,8 +34,8 @@ export default function DashboardPage() {
     const q = query.trim().toLowerCase();
     const base = q
       ? products.filter((p) =>
-          [p.name, p.sku].some((f) => f.toLowerCase().includes(q))
-        )
+        [p.name, p.sku].some((f) => f.toLowerCase().includes(q))
+      )
       : products;
     const sorted = [...base].sort((a, b) => {
       const av = a[sortKey];
@@ -62,38 +61,34 @@ export default function DashboardPage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [sellQuantity, setSellQuantity] = useState(1);
   const [customerEmail, setCustomerEmail] = useState("");
-  
+
   // Cart state
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showCart, setShowCart] = useState(false);
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
 
-  // Per-user storage helpers
-  const storageKey = user?.$id ? `products:${user.$id}` : null;
-  
-  const saveProducts = (next: Product[]) => {
-    try {
-      if (!storageKey || typeof window === "undefined") return;
-      localStorage.setItem(storageKey, JSON.stringify(next));
-    } catch {}
-  };
+  // Per-user storage helpers - REMOVED
+  // const storageKey = user?.$id ? `products:${user.$id}` : null;
+
+  // const saveProducts = (next: Product[]) => {
+  //   try {
+  //     if (!storageKey || typeof window === "undefined") return;
+  //     localStorage.setItem(storageKey, JSON.stringify(next));
+  //   } catch {}
+  // };
 
   // Load user products on auth ready
   useEffect(() => {
     if (!loading && user) {
-      const loadProducts = () => {
-        try {
-          if (!storageKey || typeof window === "undefined") return [] as Product[];
-          const raw = localStorage.getItem(storageKey);
-          return raw ? (JSON.parse(raw) as Product[]) : [];
-        } catch {
-          return [] as Product[];
+      const loadProducts = async () => {
+        if (user.$id) {
+          const data = await getProducts(user.$id);
+          setProducts(data);
         }
       };
-      const data = loadProducts();
-      setProducts(data);
+      loadProducts();
     }
-  }, [loading, user, storageKey]);
+  }, [loading, user]);
 
   // Check for low stock products and show notification
   useEffect(() => {
@@ -107,12 +102,12 @@ export default function DashboardPage() {
   // Cart functions
   const addToCart = (product: Product, quantity: number = 1) => {
     const existingItem = cart.find(item => item.productId === product.id);
-    
+
     if (existingItem) {
       const newQuantity = existingItem.quantity + quantity;
       if (newQuantity <= product.quantity) {
-        setCart(cart.map(item => 
-          item.productId === product.id 
+        setCart(cart.map(item =>
+          item.productId === product.id
             ? { ...item, quantity: newQuantity }
             : item
         ));
@@ -136,11 +131,11 @@ export default function DashboardPage() {
       removeFromCart(productId);
       return;
     }
-    
+
     const cartItem = cart.find(item => item.productId === productId);
     if (cartItem && newQuantity <= cartItem.stockQuantity) {
-      setCart(cart.map(item => 
-        item.productId === productId 
+      setCart(cart.map(item =>
+        item.productId === productId
           ? { ...item, quantity: newQuantity }
           : item
       ));
@@ -162,27 +157,31 @@ export default function DashboardPage() {
       alert("Cart is empty!");
       return;
     }
-    
+
     // Show checkout modal
     setShowCheckoutModal(true);
     setCustomerEmail("");
   };
 
-  const processCheckout = (customer: { name: string; email: string }) => {
+  const processCheckout = async (customer: { name: string; email: string }) => {
     if (cart.length === 0) return;
 
-    // Update product quantities
-    setProducts((prev) => {
-      const updated = prev.map(p => {
-        const cartItem = cart.find(item => item.productId === p.id);
-        if (cartItem) {
-          return { ...p, quantity: p.quantity - cartItem.quantity };
-        }
-        return p;
-      });
-      saveProducts(updated);
-      return updated;
+    // Update product quantities in DB
+    const updates = cart.map(async (item) => {
+      const product = products.find((p) => p.id === item.productId);
+      if (product) {
+        const newQty = product.quantity - item.quantity;
+        await updateProduct(product.id, { quantity: newQty });
+      }
     });
+
+    await Promise.all(updates);
+
+    // Refresh products from DB to ensure sync
+    if (user?.$id) {
+      const fresh = await getProducts(user.$id);
+      setProducts(fresh);
+    }
 
     // Generate cart invoice
     generateCartInvoice(cart, customer);
@@ -202,7 +201,7 @@ export default function DashboardPage() {
       products: items,
       totalValue: items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
     };
-    
+
     const printWindow = window.open('', '_blank');
     if (printWindow) {
       printWindow.document.write(`
@@ -294,13 +293,12 @@ export default function DashboardPage() {
     setShowSellModal(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (deleteConfirm.product) {
-      setProducts((prev) => {
-        const next = prev.filter((p) => p.id !== deleteConfirm.product!.id);
-        saveProducts(next);
-        return next;
-      });
+      const success = await deleteProduct(deleteConfirm.product.id);
+      if (success) {
+        setProducts((prev) => prev.filter((p) => p.id !== deleteConfirm.product!.id));
+      }
     }
     setDeleteConfirm({ show: false, product: null });
   };
@@ -314,7 +312,7 @@ export default function DashboardPage() {
       products: product ? [{ ...product, quantity: quantity || 1 }] : products,
       totalValue: product ? (product.price * (quantity || 1)) : products.reduce((sum, p) => sum + (p.price * p.quantity), 0)
     };
-    
+
     // Create a printable invoice
     const printWindow = window.open('', '_blank');
     if (printWindow) {
@@ -384,25 +382,24 @@ export default function DashboardPage() {
     }
   };
 
-  const confirmSell = () => {
+  const confirmSell = async () => {
     if (!selectedProduct || sellQuantity <= 0 || sellQuantity > selectedProduct.quantity) {
       alert("Invalid quantity!");
       return;
     }
 
     // Update product quantity
-    setProducts((prev) => {
-      const next = prev.map((p) => 
-        p.id === selectedProduct.id 
-          ? { ...p, quantity: p.quantity - sellQuantity }
-          : p
-      );
-      saveProducts(next);
-      return next;
-    });
+    const newQty = selectedProduct.quantity - sellQuantity;
+    const updated = await updateProduct(selectedProduct.id, { quantity: newQty });
 
-    // Generate invoice for the sale
-    generateInvoice(selectedProduct, sellQuantity, { name: "Customer", email: customerEmail });
+    if (updated) {
+      setProducts((prev) =>
+        prev.map((p) => (p.id === selectedProduct.id ? updated : p))
+      );
+
+      // Generate invoice for the sale
+      generateInvoice(selectedProduct, sellQuantity, { name: "Customer", email: customerEmail });
+    }
 
     // Close modal
     setShowSellModal(false);
@@ -410,22 +407,22 @@ export default function DashboardPage() {
     setSellQuantity(1);
     setCustomerEmail("");
   };
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.sku) return;
-    if (editingId) {
-      setProducts((prev) => {
-        const next = prev.map((p) => (p.id === editingId ? { ...form, id: editingId } : p));
-        saveProducts(next);
-        return next;
-      });
-    } else {
-      const id = `p${Date.now()}`;
-      setProducts((prev) => {
-        const next = [{ ...form, id }, ...prev];
-        saveProducts(next);
-        return next;
-      });
+
+    if (user?.$id) {
+      if (editingId) {
+        const updated = await updateProduct(editingId, form);
+        if (updated) {
+          setProducts((prev) => prev.map((p) => (p.id === editingId ? updated : p)));
+        }
+      } else {
+        const newProduct = await addProduct(form, user.$id);
+        if (newProduct) {
+          setProducts((prev) => [newProduct, ...prev]);
+        }
+      }
     }
     setShowForm(false);
     resetForm();
@@ -543,4 +540,4 @@ export default function DashboardPage() {
   }
 }
 
- 
+
