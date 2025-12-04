@@ -26,7 +26,7 @@ TrackNest is a comprehensive, real-time inventory management system built with m
 - **👤 User Authentication** - Secure login/signup with Appwrite
 - **📱 Responsive Design** - Works perfectly on desktop, tablet, and mobile
 - **🌙 Dark/Light Mode** - Beautiful UI with theme switching
-- **💾 Local Storage** - Per-user data persistence with localStorage
+- **☁️ Cloud Storage** - Secure data persistence with Appwrite Database
 
 ## 🏗️ Architecture
 
@@ -69,7 +69,7 @@ src/
 - Users create accounts with email, password, name, mobile, and age
 - Secure authentication powered by Appwrite
 - Automatic redirection based on authentication status
-- Per-user data isolation using localStorage
+- Per-user data isolation using Appwrite Database
 
 ### 2. **Product Management**
 - **Add Products**: Create new inventory items with name, SKU, quantity, and price
@@ -108,7 +108,7 @@ src/
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/raj-0508/inventory_management.git
    cd inventory_management_1
    ```
 
@@ -122,6 +122,8 @@ src/
    ```env
    NEXT_PUBLIC_APPWRITE_ENDPOINT=https://cloud.appwrite.io/v1
    NEXT_PUBLIC_APPWRITE_PROJECT_ID=your_project_id
+   NEXT_PUBLIC_APPWRITE_DATABASE_ID=your_database_id
+   NEXT_PUBLIC_APPWRITE_COLLECTION_ID=your_collection_id
    ```
 
 4. **Run the development server**
@@ -174,8 +176,21 @@ pnpm start
 
 1. Create an Appwrite project
 2. Enable authentication with email/password
-3. Update environment variables with your project details
-4. Configure CORS settings for your domain
+3. **Database Setup**:
+   - Create a Database
+   - Create a Collection named `products`
+   - Add the following **Attributes**:
+     - `name` (String, 128, Required)
+     - `sku` (String, 50, Required)
+     - `quantity` (Integer, Required)
+     - `price` (Double, Required)
+     - `userId` (String, 36, Required)
+   - Create an **Index** on `userId` (Key: `userId`, Type: `Key`)
+4. **Permissions**:
+   - Go to Collection Settings > Permissions
+   - Add Role: `users` (or "Any User")
+   - Check **Create**, **Read**, **Update**, **Delete**
+5. Update environment variables with your IDs
 
 ### Customization
 
@@ -189,7 +204,7 @@ pnpm start
 - **Fast Loading**: Optimized with Next.js 15 and Turbopack
 - **Efficient Rendering**: React 19 with concurrent features
 - **Minimal Bundle**: Tree-shaking and code splitting
-- **Local Storage**: Fast data access without server roundtrips
+- **Appwrite Cloud**: Scalable and secure database performance
 
 ## 🛡️ Security
 
