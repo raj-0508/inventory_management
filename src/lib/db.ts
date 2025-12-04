@@ -25,12 +25,16 @@ export const getProducts = async (userId: string): Promise<Product[]> => {
 
 export const addProduct = async (product: Omit<Product, "id">, userId: string): Promise<Product | null> => {
     try {
+        // Explicitly remove id if it exists in the runtime object
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { id, ...data } = product as any;
+
         const response = await databases.createDocument(
             databaseId,
             collectionId,
             ID.unique(),
             {
-                ...product,
+                ...data,
                 userId,
             }
         );
