@@ -140,7 +140,7 @@ const Navbar = () => {
 
       {/* Mobile Sidebar */}
       <div
-        className={`fixed top-0 right-0 h-full w-60 bg-background/95 backdrop-blur-md shadow-lg transform transition-transform duration-300 z-40
+        className={`fixed top-0 right-0 h-40px w-60 bg-background backdrop-blur-md shadow-lg transform transition-transform duration-300 z-40
         ${menuOpen ? "translate-x-0" : "translate-x-full"}`}
       >
         {/* Close button */}
